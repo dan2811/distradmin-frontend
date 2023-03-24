@@ -2,6 +2,9 @@
   "name": "react-admin",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "14.x.x"
+  },
   "dependencies": {
     "@react-oauth/google": "^0.8.0",
     "@testing-library/jest-dom": "^5.16.5",

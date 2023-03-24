@@ -11,11 +11,9 @@ import {
   useRedirect,
   usePermissions,
   useGetList,
-  useRefresh,
 } from 'react-admin';
 
 export const JobCreate = () => {
-  const refresh = useRefresh();
   const notify = useNotify();
   const redirect = useRedirect();
   const { isLoading, permissions } = usePermissions();
@@ -44,8 +42,8 @@ export const JobCreate = () => {
   const onSuccess = (data) => {
     const redirectPath =
       permissions === 'Super Admin'
-        ? `events/${data.event}/show/2`
-        : `/events/${data.event}/show/1`;
+        ? `${process.env.REACT_APP_FRONTEND_URL}/#/events/${data.event}/show/2`
+        : `${process.env.REACT_APP_FRONTEND_URL}/#/events/${data.event}/show/1`;
     redirect(redirectPath);
     notify('Musician added!', { type: 'success' });
   };
