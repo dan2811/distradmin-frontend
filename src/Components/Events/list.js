@@ -30,7 +30,18 @@ export const EventList = () => {
         >
           <TextField source='name' />
         </ReferenceField>
-        <TextField source='client' label='Client' />
+        <FunctionField
+          source='client'
+          label='Client'
+          render={(record) => {
+            const client = record.client.data?.attributes;
+            if (client) {
+              return `${client?.fName} ${client?.lName}`;
+            } else {
+              return 'No client assigned';
+            }
+          }}
+        />
         <TextField source='location' label='Location' />
         <TextField source='team' label='Team' />
 

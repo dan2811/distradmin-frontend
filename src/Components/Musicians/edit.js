@@ -17,10 +17,7 @@ export const MusicianEdit = () => {
         <TextInput source='location' validate={[required()]} />
         <TextInput source='notes' />
         <BooleanInput source='canMD' label='Can MD?' />
-        <ReferenceArrayInput
-          reference='instruments'
-          source='instruments'
-        ></ReferenceArrayInput>
+        <ReferenceArrayInput reference='instruments' source='instruments' />
       </SimpleForm>
     </Edit>
   );

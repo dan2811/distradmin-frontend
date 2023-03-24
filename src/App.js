@@ -16,6 +16,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import GroupsIcon from '@mui/icons-material/Groups';
 import PianoIcon from '@mui/icons-material/Piano';
 import FestivalIcon from '@mui/icons-material/Festival';
+import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 import CustomLoginPage from './Auth/CustomLoginPage';
 import { EventEdit } from './Components/Events/edit';
 import PackagesList from './Components/Packages/list';
@@ -33,6 +34,8 @@ import EventTypesList from './Components/Event-types/list';
 import { EventTypeShow } from './Components/Event-types/show';
 import { EventTypeCreate } from './Components/Event-types/create';
 import { EventTypeEdit } from './Components/Event-types/edit';
+import { ClientList } from './Components/Clients/list';
+import { ClientCreate } from './Components/Clients/create';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -62,6 +65,12 @@ const App = () => {
         show={EventShow}
         create={EventCreate}
         icon={CalendarMonthIcon}
+      />
+      <Resource
+        name='clients'
+        list={ClientList}
+        create={ClientCreate}
+        icon={EmojiPeopleIcon}
       />
       <Resource
         name='musicians'

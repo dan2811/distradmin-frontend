@@ -7,6 +7,7 @@ import {
   Tab,
   Datagrid,
   useRecordContext,
+  FunctionField,
 } from 'react-admin';
 import { Card } from '@mui/material';
 import CustomReferenceManyField from '../custom/CustomReferenceManyField';
@@ -30,7 +31,14 @@ const FilteredEventList = () => {
       >
         <Datagrid rowClick={'show'} bulkActionButtons={false}>
           <DateField source='date' />
-          <TextField source='client' />
+          <FunctionField
+            label='client'
+            render={(record) =>
+              record.client.data
+                ? `${record.client.data.attributes.fName} ${record.client.data.attributes.lName}`
+                : 'No client assigned'
+            }
+          />
           <TextField source='team' />
         </Datagrid>
       </CustomReferenceManyField>

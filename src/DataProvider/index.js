@@ -34,7 +34,7 @@ export const DataProvider = (
    * @returns {Object} { url, options } The HTTP request parameters
    */
   const convertDataRequestToHTTP = (type, resource, params) => {
-    console.log(type, resource);
+    console.log('Convert data request to HTTP', type, resource, params);
     let url = '';
     const options = {};
     switch (type) {
@@ -202,7 +202,10 @@ export const DataProvider = (
     console.log('DATAPROVIDER LOGS', { resource, type });
     switch (type) {
       case GET_ONE:
-        console.log("GET ONE response (flattened) ", flattenNestedRelations(response.json));
+        console.log(
+          'GET ONE response (flattened) ',
+          flattenNestedRelations(response.json)
+        );
         return {
           data: flattenNestedRelations(response.json),
         };

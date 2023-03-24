@@ -1,27 +1,39 @@
-export const sendAuthorizedApiRequest = async (
-  requestDetails,
-  GoogleAuth,
-  callback,
-  scope
-) => {
-  if (isAuthorized(GoogleAuth, scope)) {
-    // const request = gapi.client.request(requestDetails);
-    // return request.execute((response) => callback(response));
-  } else {
-    GoogleAuth.signIn();
+import { hasGrantedAllScopesGoogle } from '@react-oauth/google';
+
+export const sendAuthorizedApiRequest = async (requestDetails, scope) => {
+  if (isAuthorized(scope)) {
+    const response = await fetch(requestDetails.path, requestDetails);
+    console.log('RESULT FROM SENDAUTHEDREQ: ', response);
+    if (response.ok) {
+      return response.json();
+    }
+    throw new Error(`Request failed with status: ${response.status}`);
   }
+  console.error(
+    scope,
+    ' not authorised by user, calling login to prompt authorisation'
+  );
 };
 
-const isAuthorized = (GoogleAuth, requestScope) => {
-  console.log(GoogleAuth.currentUser.get());
+const isAuthorized = (requestScope) => {
   try {
-    if (GoogleAuth.currentUser.get().xc.scope.includes(requestScope)) {
-      return true;
+    const json = localStorage.getItem('tokenResponse') || '';
+    const tokenResponse = JSON.parse(json);
+    const hasGrantedAllScopes = hasGrantedAllScopesGoogle(
+      tokenResponse,
+      requestScope
+    );
+
+    console.log('Result of hasGrantedAllScopesGoogle: ', hasGrantedAllScopes);
+
+    if (!hasGrantedAllScopes) {
+      throw new Error(
+        `User has not granted the following scope ${requestScope}`
+      );
     }
-    throw new Error('User does not have the correct scopes');
+    return true;
   } catch (e) {
-    GoogleAuth.disconnect();
-    console.error(e);
+    console.error('Error verifying that user has authed google scopes', e);
     return false;
   }
 };

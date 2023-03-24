@@ -1,18 +1,15 @@
 import React from 'react';
 import { useRedirect, useNotify } from 'react-admin';
 import { useGoogleLogin } from '@react-oauth/google';
-
 const CustomLoginPage = (props) => {
   const redirect = useRedirect();
   const notify = useNotify();
-
   const login = useGoogleLogin({
     flow: 'implicit',
     prompt: 'select_account',
-    // scope:
-    //   'https://www.googleapis.com/auth/documents https://www.googleapis.com/auth/drive',
+    scope: 'https://www.googleapis.com/auth/drive',
     onSuccess: async (tokenResponse) => {
-      console.log('Token Response: ', JSON.stringify(tokenResponse));
+      localStorage.setItem('tokenResponse', JSON.stringify(tokenResponse));
       const accessToken = tokenResponse.access_token;
       try {
         const result = await fetch(
@@ -38,12 +35,9 @@ const CustomLoginPage = (props) => {
         notify(err);
       }
     },
-    prompt: 'select_account',
-    scope: 'https://www.googleapis.com/auth/drive',
   });
 
   return <button onClick={() => login()}>Sign in with Google 🚀 </button>;
 };
 
 export default CustomLoginPage;
-

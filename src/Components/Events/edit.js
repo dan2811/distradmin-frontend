@@ -9,7 +9,67 @@ import {
   ReferenceInput,
   SelectInput,
   usePermissions,
+  useRecordContext,
 } from 'react-admin';
+
+const SelectClient = () => {
+  const record = useRecordContext();
+  if (!record) return null;
+  let clientID;
+  if (!record.client || !record.client.data) {
+    clientID = null;
+  } else {
+    clientID = record.client.data.id;
+  }
+
+  return (
+    <SelectInput
+      label='Client'
+      validate={[required()]}
+      optionText={(record) => `${record.fName} ${record.lName}`}
+      optionValue='id'
+      translateChoice={true}
+      defaultValue={clientID}
+    />
+  );
+};
+
+const SelectPackage = () => {
+  const record = useRecordContext();
+  if (!record) return null;
+  let packageID;
+  if (!record.package || !record.package.data) {
+    packageID = null;
+  } else {
+    packageID = record.package.data.id;
+  }
+
+  return (
+    <SelectInput
+      label='Package'
+      validate={[required()]}
+      defaultValue={packageID}
+    />
+  );
+};
+
+const SelectEventType = () => {
+  const record = useRecordContext();
+  if (!record) return null;
+  let eventTypeID;
+  if (!record.type || !record.type.data) {
+    eventTypeID = null;
+  } else {
+    eventTypeID = record.type.data.id;
+  }
+  return (
+    <SelectInput
+      label='Event Type'
+      validate={[required()]}
+      defaultValue={eventTypeID}
+    />
+  );
+};
 
 export const EventEdit = () => {
   const { isLoading, permissions } = usePermissions();
@@ -20,18 +80,18 @@ export const EventEdit = () => {
       <SimpleForm>
         <DateInput source='date' validate={[required()]} />
         <ReferenceInput source='type.id' reference='types' sortable={false}>
-          <SelectInput label='Event Type' validate={[required()]} />
+          <SelectEventType />
         </ReferenceInput>
-
         <ReferenceInput
           source='package.id'
           reference='packages'
           sortable={false}
         >
-          <SelectInput label='Package' validate={[required()]} />
+          <SelectPackage />
         </ReferenceInput>
-
-        <TextInput source='client' validate={[required()]} />
+        <ReferenceInput source='client.id' reference='clients'>
+          <SelectClient />
+        </ReferenceInput>
         <TextInput source='location' />
         <TextInput source='notes' />
         {permissions === 'Super Admin' && (
