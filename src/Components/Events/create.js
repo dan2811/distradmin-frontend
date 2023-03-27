@@ -11,23 +11,34 @@ import {
   SelectInput,
   ReferenceInput,
   usePermissions,
+  useGetList,
 } from 'react-admin';
 
 export const EventCreate = () => {
   const { isLoading, permissions } = usePermissions();
+  const { data: allClients, isLoading: isClientsLoading } = useGetList(
+    'clients',
+    {
+      pagination: { page: 1, perPage: 99999 },
+      sort: {
+        field: 'fName',
+        order: 'ASC',
+      },
+    }
+  );
+
   return isLoading ? (
     <div>Checking permissions...</div>
   ) : (
     <Create>
       <SimpleForm>
-        <ReferenceInput source='client' reference='clients'>
-          <SelectInput
-            validate={[required()]}
-            optionText={(record) => `${record.fName} ${record.lName}`}
-            optionValue='id'
-            // translateChoice={false}
-          />
-        </ReferenceInput>
+        <SelectInput
+          source='client'
+          validate={[required()]}
+          optionText={(record) => `${record.fName} ${record.lName}`}
+          optionValue='id'
+          choices={isClientsLoading ? [] : allClients}
+        />
 
         <DateInput source='date' validate={[required()]} />
 

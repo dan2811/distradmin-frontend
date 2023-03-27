@@ -10,10 +10,21 @@ import {
   SelectInput,
   usePermissions,
   useRecordContext,
+  useGetList,
 } from 'react-admin';
 
 const SelectClient = () => {
   const record = useRecordContext();
+  const { data: allClients, isLoading: isClientsLoading } = useGetList(
+    'clients',
+    {
+      pagination: { page: 1, perPage: 99999 },
+      sort: {
+        field: 'fName',
+        order: 'ASC',
+      },
+    }
+  );
   if (!record) return null;
   let clientID;
   if (!record.client || !record.client.data) {
@@ -23,13 +34,21 @@ const SelectClient = () => {
   }
 
   return (
+    // <SelectInput
+    //   label='Client'
+    //   validate={[required()]}
+    //   optionText={(record) => `${record.fName} ${record.lName}`}
+    //   optionValue='id'
+    //   translateChoice={true}
+    //   defaultValue={clientID}
+    // />
     <SelectInput
-      label='Client'
+      source='client'
       validate={[required()]}
       optionText={(record) => `${record.fName} ${record.lName}`}
       optionValue='id'
-      translateChoice={true}
       defaultValue={clientID}
+      choices={isClientsLoading ? [] : allClients}
     />
   );
 };
