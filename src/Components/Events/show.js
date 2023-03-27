@@ -139,9 +139,9 @@ export const EventShow = () => {
           <FunctionField
             label='Client'
             render={(record) => {
-              if (record.client.data) {
+              if (record.client?.data) {
                 return (
-                  <Link to={`/clients/${record.client.data.id}`}>
+                  <Link to={`/clients/${record.client.data.id}/show`}>
                     {getClientFullName(record)}
                   </Link>
                 );
