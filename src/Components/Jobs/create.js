@@ -56,13 +56,8 @@ export const JobCreate = () => {
         <ReferenceInput source='event' reference='events'>
           <SelectInput
             validate={[required()]}
-            optionText={(record) => {
-              const client = record.client.data?.attributes;
-              return !!client
-                ? `${record.date}, ${client?.fName} ${client?.lName}, ${record.location}`
-                : `${record.date}, ${record.location}`;
-            }}
             optionValue='id'
+            disabled={true}
           />
         </ReferenceInput>
 

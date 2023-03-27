@@ -56,7 +56,7 @@ import GoogleDocButton from './customEventComponents/googleDocButton.js';
 // };
 
 const getClientFullName = (record) => {
-  if (!record.client.data || record.client.data === null) {
+  if (!record.client?.data || record.client?.data === null) {
     return 'No client assigned!';
   }
   const client = record.client.data.attributes;
