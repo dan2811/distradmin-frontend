@@ -36,6 +36,8 @@ import { EventTypeCreate } from './Components/Event-types/create';
 import { EventTypeEdit } from './Components/Event-types/edit';
 import { ClientList } from './Components/Clients/list';
 import { ClientCreate } from './Components/Clients/create';
+import { ClientShow } from './Components/Clients/show';
+import { ClientEdit } from './Components/Clients/edit';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -65,10 +67,15 @@ const App = () => {
         show={EventShow}
         create={EventCreate}
         icon={CalendarMonthIcon}
+        recordRepresentation={(record) =>
+          `${new Date(record.date).toLocaleDateString()} - ${record.location}`
+        }
       />
       <Resource
         name='clients'
         list={ClientList}
+        show={ClientShow}
+        edit={ClientEdit}
         create={ClientCreate}
         icon={EmojiPeopleIcon}
       />
