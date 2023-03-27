@@ -18,7 +18,7 @@ export const getFromBackend = async (
 
   console.log('FILTER STRING: ', filterString);
 
-  const paginationString = `pagination[page]=${page}&pagination[pageSize]=${pageSize}`;
+  const paginationString = `&pagination[page]=${page}&pagination[pageSize]=${pageSize}`;
 
   const res = await fetch(
     `${process.env.REACT_APP_BACKEND_URL}/api/${collectionType}${filterString}${paginationString}&populate=*`,
