@@ -31,6 +31,7 @@ export const EventList = () => {
           <TextField source='name' />
         </ReferenceField>
         <FunctionField
+          sortable={false}
           source='client'
           label='Client'
           render={(record) => {
