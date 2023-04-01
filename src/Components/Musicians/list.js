@@ -23,7 +23,8 @@ export const MusicianList = () => {
         />
         <TextField source='location' />
 
-        <ReferenceArrayField
+        {/* THE BELOW COMPONENT CURRENTLY BREAKS THE PAGE, NEED FIX IN THE DATAPROVIDER */}
+        {/* <ReferenceArrayField
           source='instruments'
           reference='musicians'
           sortable={false}
@@ -33,7 +34,8 @@ export const MusicianList = () => {
               <ChipField source='name' />
             </SingleFieldList>
           </ArrayField>
-        </ReferenceArrayField>
+        </ReferenceArrayField> */}
+
         <BooleanField source='canMD' label='MD?' TrueIcon={MilitaryTechIcon} />
 
         <EditButton />
