@@ -8,20 +8,11 @@ import {
   BooleanField,
   TextInput,
   BooleanInput,
-  SelectArrayInput,
 } from 'react-admin';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { getFromBackend } from '../../DataProvider/backendHelpers';
 
 export const MusicianList = () => {
-  const [instruments, setInstruments] = React.useState([]);
-  React.useEffect(() => {
-    const fetchData = async () => {
-      const res = await getFromBackend('instruments');
-      setInstruments(res.data);
-    };
-    fetchData();
-  }, []);
   const musicianFilters = [
     <TextInput label='First Name' source='fName_containsi' />,
     <TextInput label='Last Name' source='lName_containsi' />,

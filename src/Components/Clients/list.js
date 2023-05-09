@@ -2,17 +2,10 @@ import * as React from 'react';
 import {
   List,
   Datagrid,
-  TextField,
-  ArrayField,
-  SingleFieldList,
-  ChipField,
   EditButton,
-  ReferenceArrayField,
   FunctionField,
-  BooleanField,
   TextInput,
 } from 'react-admin';
-import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 
 export const ClientList = () => {
   const clientFilters = [
