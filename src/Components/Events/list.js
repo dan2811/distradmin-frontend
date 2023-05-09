@@ -8,16 +8,42 @@ import {
   FunctionField,
   ReferenceField,
   usePermissions,
+  SelectInput,
+  TextInput,
+  DateInput,
 } from 'react-admin';
 import { CircularProgressWithLabel } from '../custom/circularProgress';
 import ColouredDateField from './customEventComponents/colouredDateField';
+import { getFromBackend } from '../../DataProvider/backendHelpers';
 
 export const EventList = () => {
+  const [packages, setPackages] = React.useState([]);
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const res = await getFromBackend('packages');
+      setPackages(res.data);
+    };
+    fetchData();
+  }, []);
+  const eventFilters = [
+    <DateInput label='Date from' source='date_gte' />,
+    <DateInput label='Date up to' source='date_lte' />,
+    <SelectInput
+      label='Package'
+      source='package'
+      choices={packages}
+      optionText={(item) => item.attributes.name}
+      optionValue='id'
+      emptyText='All'
+    />,
+    <TextInput label='Location' source='location_containsi' />,
+    <TextInput label='Team' source='team_containsi' />,
+  ];
   const { isLoading, permissions } = usePermissions();
   return isLoading ? (
     <div>Checking permissions...</div>
   ) : (
-    <List sort={{ field: 'date', order: 'DESC' }}>
+    <List filters={eventFilters} sort={{ field: 'date', order: 'DESC' }}>
       <Datagrid rowClick='show'>
         <ColouredDateField source='date' />
         {/* <TextField source='type' /> */}

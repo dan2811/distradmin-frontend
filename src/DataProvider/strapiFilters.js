@@ -1,32 +1,23 @@
 import qs from 'qs';
 
-export const createStrapiFilters = (raFilter) => {
-  console.log('RA filter', raFilter);
-
-  const fields = Object.keys(raFilter);
-
+export const createStrapiFilter = (field, value) => {
   const formattedFilters = {};
 
-  fields.forEach((field) => {
-    const [fieldName, operator] = field.split('_');
+  const [fieldName, operator] = field.split('_');
 
-    if (typeof raFilter[field] === 'object') {
-      //is filter by relation using array of ids
-      if (!Array.isArray(raFilter[field].id)) {
-        console.warn(
-          'Was expecting array of ids, but got ',
-          JSON.stringify(raFilter[field])
-        );
-      }
-      formattedFilters[fieldName] = createFilterForRelation(raFilter[field]);
-      return;
+  if (typeof value === 'object') {
+    //is filter by relation using array of ids
+    if (!Array.isArray(value.id)) {
+      console.warn(
+        'Was expecting array of ids, but got ',
+        JSON.stringify(value)
+      );
     }
+    formattedFilters[fieldName] = createFilterForRelation(value);
+    return;
+  }
 
-    formattedFilters[fieldName] = createSimpleFilterObject(
-      operator,
-      raFilter[field]
-    );
-  });
+  formattedFilters[fieldName] = createSimpleFilterObject(operator, value);
 
   return (
     '&' +

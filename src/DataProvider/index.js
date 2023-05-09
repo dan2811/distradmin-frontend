@@ -11,6 +11,7 @@ import {
   DELETE,
   DELETE_MANY,
 } from 'react-admin';
+import { createStrapiFilter } from './strapiFilters';
 
 /**
  * Maps react-admin queries to a simple REST API
@@ -91,22 +92,26 @@ export const DataProvider = (
     console.log('Filter: ', f);
     let filter = '';
     const keys = Object.keys(f);
-    for (let i = 0; i < keys.length; i++) {
-      //react-admin uses q filter in several components and strapi use _q
-      if (f[keys[i]]) {
-        if (keys[i] === 'q' && f.q !== '') {
-          filter += '_q=' + f[keys[i]] + (keys[i + 1] ? '&' : '');
-        } else if (Array.isArray(f[keys[i]])) {
-          const arrayOfFilterValues = f[keys[i]];
-          arrayOfFilterValues.forEach((val, idx) => {
-            filter += `&filters[${keys[i]}][$in][${idx}]=${val}`;
-          });
-        } else {
-          filter +=
-            `&filters[${keys[i]}]=` + f[keys[i]] + (keys[i + 1] ? '&' : '');
+    keys.forEach((key, idx) => {
+      if (key.includes('_')) {
+        filter += createStrapiFilter(key, f[key]);
+      } else {
+        //react-admin uses q filter in several components and strapi use _q
+        if (f[key]) {
+          if (key === 'q' && f.q !== '') {
+            filter += '_q=' + f[key] + (keys[idx + 1] ? '&' : '');
+          } else if (Array.isArray(f[key])) {
+            const arrayOfFilterValues = f[key];
+            arrayOfFilterValues.forEach((val, idx) => {
+              filter += `&filters[${key}][$in][${idx}]=${val}`;
+            });
+          } else {
+            filter += `&filters[${key}]=` + f[key] + (keys[idx + 1] ? '&' : '');
+          }
         }
       }
-    }
+    });
+
     if (params.id && params.target && params.target.indexOf('_id') !== -1) {
       const target = params.target.substring(0, params.target.length - 3);
       console.log('target: ' + target);
