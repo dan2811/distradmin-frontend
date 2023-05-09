@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Admin, fetchUtils, Resource } from 'react-admin';
+import { Admin, CustomRoutes, fetchUtils, Resource } from 'react-admin';
 import { EventCreate } from './Components/Events/create';
 import { EventList } from './Components/Events/list';
 import { EventShow } from './Components/Events/show';
@@ -38,6 +38,8 @@ import { ClientList } from './Components/Clients/list';
 import { ClientCreate } from './Components/Clients/create';
 import { ClientShow } from './Components/Clients/show';
 import { ClientEdit } from './Components/Clients/edit';
+import { Route } from 'react-router-dom';
+import { Paypal } from './Components/Paypal/Paypal';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -60,6 +62,9 @@ const App = () => {
       authProvider={AuthProvider}
       loginPage={CustomLoginPage}
     >
+      <CustomRoutes noLayout>
+        <Route path='/paypal' element={<Paypal />} />
+      </CustomRoutes>
       <Resource
         name='events'
         edit={EventEdit}
