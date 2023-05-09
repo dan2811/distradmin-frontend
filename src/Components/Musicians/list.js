@@ -3,19 +3,33 @@ import {
   List,
   Datagrid,
   TextField,
-  ArrayField,
-  SingleFieldList,
-  ChipField,
   EditButton,
-  ReferenceArrayField,
   FunctionField,
   BooleanField,
+  TextInput,
+  BooleanInput,
+  SelectArrayInput,
 } from 'react-admin';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import { getFromBackend } from '../../DataProvider/backendHelpers';
 
 export const MusicianList = () => {
+  const [instruments, setInstruments] = React.useState([]);
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const res = await getFromBackend('instruments');
+      setInstruments(res.data);
+    };
+    fetchData();
+  }, []);
+  const musicianFilters = [
+    <TextInput label='First Name' source='fName_containsi' />,
+    <TextInput label='Last Name' source='lName_containsi' />,
+    <TextInput label='Location' source='location_containsi' />,
+    <BooleanInput label='MD' source='canMD' />,
+  ];
   return (
-    <List>
+    <List filters={musicianFilters}>
       <Datagrid rowClick='show'>
         <FunctionField
           render={(record) => `${record.fName} ${record.lName}`}

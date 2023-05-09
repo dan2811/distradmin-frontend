@@ -10,12 +10,17 @@ import {
   ReferenceArrayField,
   FunctionField,
   BooleanField,
+  TextInput,
 } from 'react-admin';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 
 export const ClientList = () => {
+  const clientFilters = [
+    <TextInput label='First Name' source='fName_containsi' />,
+    <TextInput label='Last Name' source='lName_containsi' />,
+  ];
   return (
-    <List>
+    <List filters={clientFilters}>
       <Datagrid rowClick='show'>
         <FunctionField
           render={(record) => `${record.fName} ${record.lName}`}
