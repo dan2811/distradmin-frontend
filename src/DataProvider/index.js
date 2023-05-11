@@ -41,9 +41,14 @@ export const DataProvider = (
     switch (type) {
       case GET_LIST:
       case GET_MANY_REFERENCE:
-        url = `${apiUrl}/${resource}?${adjustQueryForStrapi(
-          params
-        )}&populate=%2A`;
+        if (resource.includes('users')) {
+          console.log('YOOOOO ', resource);
+          url = `${apiUrl}/${resource}`;
+        } else {
+          url = `${apiUrl}/${resource}?${adjustQueryForStrapi(
+            params
+          )}&populate=%2A`;
+        }
         break;
       case GET_ONE:
         url = `${apiUrl}/${resource}/${params.id}?populate=%2A`;
@@ -314,11 +319,16 @@ export const DataProvider = (
         httpClient(url, options),
         httpClient(urlForCount, options),
       ]).then((promises) => {
-        const response = {
+        let response = {
           ...promises[0],
-          // Add total for further use
-          total: parseInt(promises[1].json, 10),
         };
+        if (url.includes('api/users') || urlForCount.includes('api/users')) {
+          //custom logic for /users path - strapi plugin api responses do not return with the same format
+          return {
+            data: promises[0].json,
+            total: promises[0].json.length,
+          };
+        }
         return convertHTTPResponse(response, type, resource, params);
       });
     } else {

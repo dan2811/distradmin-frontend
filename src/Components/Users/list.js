@@ -1,13 +1,14 @@
 import React from 'react';
-import { List, Datagrid, TextField, EditButton } from 'react-admin';
+import { List, Datagrid, TextField, EditButton, DateField } from 'react-admin';
 
 const UsersList = () => {
   return (
     <List>
       <Datagrid rowClick='show'>
-        <TextField source='name' />
+        <TextField source='fName' />
+        <TextField source='lName' />
         <TextField source='email' />
-        <TextField source='role' />
+        <DateField source='createdAt' />
         <EditButton />
       </Datagrid>
     </List>

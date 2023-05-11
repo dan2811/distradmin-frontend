@@ -84,6 +84,7 @@ const App = () => {
         create={ClientCreate}
         icon={EmojiPeopleIcon}
       />
+      <Resource name='users' list={UsersList} />
       <Resource
         name='musicians'
         list={MusicianList}
