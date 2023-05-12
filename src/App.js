@@ -21,6 +21,7 @@ import CustomLoginPage from './Auth/CustomLoginPage';
 import { EventEdit } from './Components/Events/edit';
 import PackagesList from './Components/Packages/list';
 import NightlifeIcon from '@mui/icons-material/Nightlife';
+import Settings from '@mui/icons-material/Settings';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { PackageShow } from './Components/Packages/show';
 import { PackageCreate } from './Components/Packages/create';
@@ -40,6 +41,8 @@ import { ClientShow } from './Components/Clients/show';
 import { ClientEdit } from './Components/Clients/edit';
 import { Route } from 'react-router-dom';
 import { Paypal } from './Components/Paypal/Paypal';
+import GlobalSettingsList from './Components/GlobalSettings/List';
+import { GlobalSettingsEdit } from './Components/GlobalSettings/Edit';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -128,6 +131,13 @@ const App = () => {
         edit={UserEdit}
         create={UserCreate}
         recordRepresentation='name'
+      />
+      <Resource
+        name='crons'
+        icon={Settings}
+        options={{ label: 'Global Settings' }}
+        list={GlobalSettingsList}
+        edit={GlobalSettingsEdit}
       />
     </Admin>
   );
