@@ -26,7 +26,7 @@ export const EventList = () => {
     fetchData();
   }, []);
   const eventFilters = [
-    <DateInput label='Date from' source='date_gte' />,
+    <DateInput label='Date from' source='date_gte' defaultValue={new Date()} />,
     <DateInput label='Date up to' source='date_lte' />,
     <SelectInput
       label='Package'
