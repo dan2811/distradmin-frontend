@@ -14,8 +14,6 @@ import {
   DeleteButton,
   usePermissions,
   useRedirect,
-  ChipField,
-  Button,
   useRecordContext,
   Link,
 } from 'react-admin';
@@ -154,6 +152,7 @@ export const EventShow = () => {
           <TextField source='location' emptyText='No location' />
           <TextField source='notes' emptyText='None' />
           {/* <FilteredSetsList /> */}
+          <BooleanField source='clientCanEdit' label='Client Editing' />
         </Tab>
         {permissions === 'Super Admin' && (
           <Tab label='Finance'>

@@ -11,6 +11,7 @@ import {
   usePermissions,
   useRecordContext,
   useGetList,
+  BooleanInput,
 } from 'react-admin';
 
 const SelectClient = () => {
@@ -121,6 +122,7 @@ export const EventEdit = () => {
             <NumberInput source='profit' validate={[required()]} />
           </>
         )}
+        <BooleanInput source='clientCanEdit' label='Client Editing' />
       </SimpleForm>
     </Edit>
   );
