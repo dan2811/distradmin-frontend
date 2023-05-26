@@ -27,6 +27,7 @@ import {
 } from '../../Google/docBuilder.js';
 import { CreateRelationButton } from '../custom/createRelationButton.js';
 import GoogleDocButton from './customEventComponents/googleDocButton.js';
+import Chat from '../custom/chat/Chat.js';
 
 // const FilteredSetsList = () => {
 //   const record = useRecordContext();
@@ -108,6 +109,7 @@ export const EventShow = () => {
   ) : (
     <Show
       title={<FunctionField render={(record) => getClientFullName(record)} />}
+      aside={<Chat />}
     >
       <TabbedShowLayout>
         <Tab label='Details'>
