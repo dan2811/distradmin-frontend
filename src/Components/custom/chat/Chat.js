@@ -46,7 +46,7 @@ const Chat = () => {
 
       {chats.map((chat, idx) => (
         <TabPanel value={value} index={idx}>
-          <ChatRoom chatData={chat.attributes} />
+          <ChatRoom chatData={chat.attributes} roomId={chat.id} />
         </TabPanel>
       ))}
     </Card>

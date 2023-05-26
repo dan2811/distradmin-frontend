@@ -1,7 +1,6 @@
-import React from 'react';
-import { Container } from '@mui/material';
+import React, { useRef, useState } from 'react';
 
-const MessageFooter = ({ text }) => {
+const MessageDetail = ({ text }) => {
   return (
     <div
       style={{ fontSize: '10px', alignContent: 'flex-start' }}
@@ -10,19 +9,19 @@ const MessageFooter = ({ text }) => {
 };
 
 export const Message = ({ message }) => {
+  const [showDetails, setShowDetails] = useState(false);
   const { id: currentUserId } = JSON.parse(localStorage.getItem('gUser'));
 
   const { content, sender, createdAt } = message.attributes;
   const senderAttributes = sender.data.attributes;
 
-  console.log('sender attributes: ', senderAttributes);
-
   const isUsersOwnMessage = currentUserId === sender.data.id;
   if (isUsersOwnMessage) {
     return (
-      <Container
-        sx={{
-          padding: '2px',
+      <div
+        onClick={() => setShowDetails(!showDetails)}
+        style={{
+          padding: '7px',
           backgroundColor: '#2096f3',
           color: 'white',
           borderRadius: '0.5rem',
@@ -31,23 +30,34 @@ export const Message = ({ message }) => {
         }}
       >
         <div>{content}</div>
-      </Container>
+        {showDetails && (
+          <MessageDetail
+            text={`sent on ${new Date(createdAt).toLocaleString()}`}
+          />
+        )}
+      </div>
     );
   }
   return (
-    <Container
-      sx={{
-        padding: '2px',
+    <div
+      style={{
+        padding: '7px',
         backgroundColor: '#e0dee8 ',
         borderRadius: '0.5rem',
         width: '70%',
         alignSelf: 'flex-start',
       }}
+      onClick={() => setShowDetails(!showDetails)}
     >
-      <MessageFooter
+      <MessageDetail
         text={`${senderAttributes.fName} ${senderAttributes.lName}`}
       />
       <div>{content}</div>
-    </Container>
+      {showDetails && (
+        <MessageDetail
+          text={`sent on ${new Date(createdAt).toLocaleString()}`}
+        />
+      )}
+    </div>
   );
 };
