@@ -32,6 +32,10 @@ export const EventCreate = () => {
   ) : (
     <Create>
       <SimpleForm>
+        <div>
+          When you create an event, a chat between you and the client will be
+          created.
+        </div>
         <SelectInput
           source='client'
           validate={[required()]}
