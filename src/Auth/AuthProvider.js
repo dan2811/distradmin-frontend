@@ -17,8 +17,12 @@ export const AuthProvider = {
   },
   checkError(params) {
     const status = params.status;
-    localStorage.removeItem('token');
     if (status === 401 || status === 403) {
+      if (process.NODE_ENV !== 'production') {
+        alert("Auth provider would've logged you out if this was PROD!");
+        return Promise.resolve();
+      }
+      localStorage.removeItem('token');
       return Promise.reject();
     }
     return Promise.resolve();
