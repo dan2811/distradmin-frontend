@@ -1,15 +1,20 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { TextField } from '@mui/material';
+import { TextField, Dialog, DialogTitle } from '@mui/material';
 import { MessageList } from './MessageList';
 import SendIcon from '@mui/icons-material/Send';
 import { getFromBackend } from '../../../DataProvider/backendHelpers';
 import { SocketContext } from '../../..';
+import { Button } from 'react-admin';
+import Participants from './Participants';
 
 const ChatRoom = ({ chatData, roomId }) => {
-  console.log('CHATDATA: ', chatData);
+  console.debug('CHATDATA: ', chatData);
   const [input, setInput] = useState('');
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
   const [messagesData, setMessagesData] = useState([]);
-  const { id: currentUserId } = JSON.parse(localStorage.getItem('gUser'));
+  const { id: currentUserId, email: currentUserEmail } = JSON.parse(
+    localStorage.getItem('gUser')
+  );
   const { messages } = chatData;
   let messageIds = [];
 
@@ -19,10 +24,8 @@ const ChatRoom = ({ chatData, roomId }) => {
     if (!messageIds.length) {
       return;
     }
-    console.log('GETTING MESSAGES!');
     const messages = await getFromBackend('messages', messageIds);
     setMessagesData(messages.data);
-    console.log('MESSAGESDATA: ', messagesData);
   };
 
   useEffect(() => {
@@ -33,7 +36,7 @@ const ChatRoom = ({ chatData, roomId }) => {
       getMessages();
       console.log('JOINING ROOM - ', roomId);
       socket.emit('join', {
-        user: 'djordandrums@gmail.com',
+        user: currentUserEmail,
         roomId,
       });
       socket.on('newMessage', (data) => {
@@ -42,8 +45,6 @@ const ChatRoom = ({ chatData, roomId }) => {
       });
 
       return () => {
-        // before the component is destroyed
-        // unbind all event handlers used in this component
         socket.off(`room-${roomId}`);
       };
     }
@@ -75,6 +76,16 @@ const ChatRoom = ({ chatData, roomId }) => {
 
   return (
     <div>
+      <Dialog
+        open={showParticipantsModal}
+        onClose={() => setShowParticipantsModal(false)}
+      >
+        <DialogTitle>Particpants</DialogTitle>
+        <Participants
+          users={chatData.users_permissions_users.data}
+          chatId={chatData.id}
+        />
+      </Dialog>
       <MessageList messages={messagesData} />
       <div
         style={{
@@ -111,6 +122,15 @@ const ChatRoom = ({ chatData, roomId }) => {
               return 'You';
             })
             .join(', ')}
+        </div>
+        <div>
+          <Button
+            label='Edit people'
+            alignIcon='left'
+            variant='contained'
+            color='secondary'
+            onClick={() => setShowParticipantsModal(true)}
+          />
         </div>
       </div>
     </div>
