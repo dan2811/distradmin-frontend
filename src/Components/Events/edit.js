@@ -112,8 +112,8 @@ export const EventEdit = () => {
         <ReferenceInput source='client.id' reference='clients'>
           <SelectClient />
         </ReferenceInput>
-        <TextInput source='location' />
-        <TextInput source='notes' />
+        <TextInput source='location' multiline />
+        <TextInput source='notes' multiline />
         {permissions === 'Super Admin' && (
           <>
             <NumberInput source='gross' validate={[required()]} />

@@ -64,7 +64,7 @@ export const EventCreate = () => {
           />
         </ReferenceInput>
 
-        <TextInput source='location' validate={[required()]} />
+        <TextInput source='location' multiline validate={[required()]} />
         {permissions === 'Super Admin' && (
           <>
             <NumberInput source='gross' />
@@ -88,7 +88,7 @@ export const EventCreate = () => {
           />
         </ReferenceArrayInput>
 
-        <TextInput source='notes' />
+        <TextInput source='notes' multiline />
 
         {/* <ReferenceArrayInput
           label='Musicians'
