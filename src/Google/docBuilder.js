@@ -1,21 +1,90 @@
 import { getFromBackend } from '../DataProvider/backendHelpers';
 import { sendAuthorizedApiRequest } from './requestAuthorization.js';
 
-export const copyGoogleDocTemplate = async (record, formattedEventDate) => {
+export const generateGoogleFolderName = (date) => {
+  const month = date.toLocaleString('en-US', { month: 'long' });
+  const year = date.getFullYear();
+  return `${month} ${year}`;
+};
+
+export const getGoogleFolderByName = async (folderName) => {
+  const requestDetails = {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    },
+    method: 'GET',
+    path: `https://www.googleapis.com/drive/v3/files?${new URLSearchParams({
+      q: `name = '${folderName}' and mimeType = 'application/vnd.google-apps.folder' and '1Op2KYN8kCoMblWoqagvwUeH6yKyYgHL3' in parents`,
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+    })}`,
+  };
+
+  const res = await sendAuthorizedApiRequest(
+    requestDetails,
+    'https://www.googleapis.com/auth/drive'
+  );
+  if (res.files.length > 1) {
+    throw new Error('More than one folder found for current month!');
+  }
+  if (!res.files.length) {
+    return null;
+  }
+  return res.files[0];
+};
+
+export const createNewGoogleFolder = async (folderName) => {
   const requestDetails = {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
     },
     method: 'POST',
-    path: `https://www.googleapis.com/drive/v3/files/1_VQBWLCrHLSiy3j1TicaLt2O8PIDf3ayPHG5woemsVU/copy`,
-    params: {
-      supportsSharedDrives: true,
-      fields: 'id',
-    },
+    path: `https://www.googleapis.com/drive/v3/files?${new URLSearchParams({
+      supportsAllDrives: true,
+    })}`,
     body: JSON.stringify({
-      parents: ['10EXyxpVqTqHdJJB1S-MkVTTQS-usasgV'],
-      name: `${record.client} - ${formattedEventDate}`,
+      parents: ['1Op2KYN8kCoMblWoqagvwUeH6yKyYgHL3'],
+      mimeType: 'application/vnd.google-apps.folder',
+      name: folderName,
+    }),
+  };
+
+  return await sendAuthorizedApiRequest(
+    requestDetails,
+    'https://www.googleapis.com/auth/drive'
+  );
+};
+
+export const copyGoogleDocTemplate = async (
+  record,
+  formattedEventDate,
+  folderID
+) => {
+  const requestDetails = {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    },
+    method: 'POST',
+    path: `https://www.googleapis.com/drive/v3/files/1pp6LAyYva9KzmpTkj4FVTruypzhhAuRkOZPlAJ2LFsw/copy?${new URLSearchParams(
+      {
+        supportsAllDrives: true,
+      }
+    )}`,
+    body: JSON.stringify({
+      parents: [folderID],
+      name: `${record.client.data.attributes.fName} ${
+        record.client.data.attributes.lName
+      } - ${new Date(record.date).toLocaleDateString()}`,
+      labelInfo: {
+        labels: [
+          {
+            id: 'vb2ibFTCEZ1B6Y8iI4Q0rcu1dB4hGzaeVbaSNNEbbFcb',
+          },
+        ],
+      },
     }),
   };
 
@@ -61,8 +130,9 @@ export const populateDocContent = async (
     const musician = job.attributes.musician.data.attributes;
     const instrument = job.attributes.instrument.data.attributes;
 
-    let jobString = `${musician.fName} ${musician.lName} - ${instrument.name}`;
-    return job.attributes.md ? jobString + '/MD' : jobString;
+    return `${instrument.name}${job.attributes.md ? '/MD' : ''} - ${
+      musician.fName
+    } ${musician.lName}`;
   });
 
   console.log('HERE', record);
@@ -78,7 +148,7 @@ export const populateDocContent = async (
     },
     {
       textToReplace: '{{client}}',
-      content: record.client,
+      content: `${record.client.data.attributes.fName} ${record.client.data.attributes.lName}`,
     },
     {
       textToReplace: '{{date}}',
