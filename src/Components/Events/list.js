@@ -15,6 +15,7 @@ import {
 import { CircularProgressWithLabel } from '../custom/circularProgress';
 import ColouredDateField from './customEventComponents/colouredDateField';
 import { getFromBackend } from '../../DataProvider/backendHelpers';
+import OneSignalReact from 'react-onesignal';
 
 export const EventList = () => {
   const [packages, setPackages] = React.useState([]);
@@ -23,6 +24,8 @@ export const EventList = () => {
       const res = await getFromBackend('packages');
       setPackages(res.data);
     };
+    const gUser = JSON.parse(localStorage.getItem('gUser'));
+    OneSignalReact.setExternalUserId(gUser.id);
     fetchData();
   }, []);
   const eventFilters = [
@@ -82,7 +85,10 @@ export const EventList = () => {
           <FunctionField
             label='Paid'
             render={(record) => {
-              const progress = 100 - (record.amountDue / record.gross) * 100;
+              let progress = 100 - (record.amountDue / record.gross) * 100;
+              if (!record.amountDue || !record.gross) {
+                progress = 0;
+              }
               return <CircularProgressWithLabel value={progress} />;
             }}
           />
