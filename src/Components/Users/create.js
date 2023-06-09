@@ -17,7 +17,6 @@ export const UserCreate = () => {
           source='role'
           validate={[required()]}
           choices={[
-            { id: 'Musician', name: 'Musician' },
             { id: 'Admin', name: 'Admin' },
             { id: 'Super Admin', name: 'Super Admin' },
           ]}
