@@ -43,6 +43,8 @@ import { Route } from 'react-router-dom';
 import { Paypal } from './Components/Paypal/Paypal';
 import GlobalSettingsList from './Components/GlobalSettings/List';
 import { GlobalSettingsEdit } from './Components/GlobalSettings/Edit';
+import OneSignal from 'react-onesignal';
+import runOneSignal from './OneSignal';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -59,6 +61,10 @@ const dataProvider = DataProvider(
 );
 
 const App = () => {
+  React.useEffect(() => {
+    runOneSignal();
+    OneSignal.showSlidedownPrompt();
+  }, []);
   return (
     <Admin
       dataProvider={dataProvider}
