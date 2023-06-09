@@ -17,17 +17,40 @@ import {
   useRecordContext,
   Link,
 } from 'react-admin';
-import { Card } from '@mui/material';
+import {
+  Card,
+  TableContainer,
+  Table,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableBody,
+  Paper,
+  Typography,
+  FormControl,
+  Input,
+  InputLabel,
+  InputAdornment,
+} from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { CustomReferenceManyField } from '../custom/CustomReferenceManyField.js';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import {
   copyGoogleDocTemplate,
+  createNewGoogleFolder,
+  generateGoogleFolderName,
+  getGoogleFolderByName,
   populateDocContent,
   saveDocumentIdToDB,
 } from '../../Google/docBuilder.js';
 import { CreateRelationButton } from '../custom/createRelationButton.js';
 import GoogleDocButton from './customEventComponents/googleDocButton.js';
 import Chat from '../custom/chat/Chat.js';
+import AddPaymentButton from './EventFinanceTab/AddPaymentButton.js';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import { postBackend } from '../../DataProvider/backendHelpers.js';
 
 // const FilteredSetsList = () => {
 //   const record = useRecordContext();
@@ -67,9 +90,28 @@ export const EventShow = () => {
   const refresh = useRefresh();
   const [isClicked, setIsClicked] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [paymentDate, setPaymentDate] = React.useState('');
+  const [paymentAmount, setPaymentAmount] = React.useState(0);
+  const [paymentAmountInputError, setPaymentAmountInputError] =
+    React.useState(false);
   const { isLoading, permissions } = usePermissions();
   const redirect = useRedirect();
   const record = useRecordContext();
+
+  const handleAddNewPayment = async () => {
+    setLoading(true);
+    try {
+      // const result = await putBackend('/events/paypal-webhook', {
+      //   amount: paymentAmount,
+      //   date: paymentDate,
+      // });
+      refresh();
+      notify('Payment created successfully', { type: 'success' });
+    } catch (e) {
+      notify('Could not create payment', { type: 'error' });
+    }
+    setLoading(false);
+  };
 
   const createNewGoogleDoc = async (record) => {
     setLoading(true);
@@ -77,9 +119,17 @@ export const EventShow = () => {
     const formattedEventDate = new Date(record.date).toLocaleDateString();
 
     try {
+      const folderName = generateGoogleFolderName(new Date());
+      let folder = await getGoogleFolderByName(folderName);
+
+      if (!folder) {
+        console.log('No folder found!');
+        folder = await createNewGoogleFolder(folderName);
+      }
       const { id: googleDocId } = await copyGoogleDocTemplate(
         record,
-        formattedEventDate
+        formattedEventDate,
+        folder.id
       );
       await saveDocumentIdToDB(record, googleDocId);
       await populateDocContent(record, googleDocId, formattedEventDate);
@@ -103,6 +153,8 @@ export const EventShow = () => {
     window.open(url, '_blank', 'noopener,noreferrer');
     setLoading(false);
   };
+
+  console.log('PAY DATE: ', paymentDate);
 
   return isLoading ? (
     <div>Checking permissions...</div>
@@ -153,7 +205,6 @@ export const EventShow = () => {
           <DateField source='date' emptyText='No date assigned' />
           <TextField source='location' emptyText='No location' />
           <TextField source='notes' emptyText='None' />
-          {/* <FilteredSetsList /> */}
           <BooleanField source='clientCanEdit' label='Client Editing' />
         </Tab>
         {permissions === 'Super Admin' && (
@@ -174,6 +225,98 @@ export const EventShow = () => {
             <NumberField
               source='profit'
               options={{ style: 'currency', currency: 'GBP' }}
+            />
+
+            <FunctionField
+              render={(record) => {
+                if (!record.payments) return <></>;
+                return (
+                  <TableContainer
+                    component={Paper}
+                    sx={{ padding: '1rem' }}
+                    elevation={3}
+                  >
+                    <Typography variant='subtitle1' sx={{ margin: '0.5rem' }}>
+                      Customer Payments
+                    </Typography>
+                    <Table sx={{ minWidth: 650 }}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Date</TableCell>
+                          <TableCell>Amount</TableCell>
+                          <TableCell>Payment ID</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {record.payments.map((payment) => (
+                          <TableRow key={payment.id}>
+                            <TableCell component='th' scope='row'>
+                              {new Date(payment.date).toLocaleDateString()}
+                            </TableCell>
+                            <TableCell>£{payment.amount}</TableCell>
+                            <TableCell>{payment.id}</TableCell>
+                          </TableRow>
+                        ))}
+                        <TableRow>
+                          <TableCell component='th' scope='row'>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                              <DatePicker
+                                views={['day', 'month', 'year']}
+                                label='Date'
+                                onChange={(val) =>
+                                  setPaymentDate(
+                                    new Date(val).toLocaleDateString()
+                                  )
+                                }
+                                defaultValue={dayjs()}
+                                format='DD/MM/YYYY'
+                              />
+                            </LocalizationProvider>
+                          </TableCell>
+                          <TableCell>
+                            <FormControl variant='standard'>
+                              <InputLabel htmlFor='paymentAmount'>
+                                Amount
+                              </InputLabel>
+                              <Input
+                                value={paymentAmount}
+                                onChange={(e) => {
+                                  const amount = e.target.value;
+                                  if (isNaN(amount)) {
+                                    setPaymentAmountInputError(true);
+                                  } else {
+                                    setPaymentAmount(amount);
+                                    setPaymentAmountInputError(false);
+                                  }
+                                }}
+                                error={paymentAmountInputError}
+                                id='paymentAmount'
+                                startAdornment={
+                                  <InputAdornment position='start'>
+                                    £
+                                  </InputAdornment>
+                                }
+                              />
+                            </FormControl>
+                          </TableCell>
+                          <TableCell>
+                            <AddPaymentButton
+                              handleAddNewPayment={handleAddNewPayment}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                    <Typography variant='subtitle2' sx={{ marginTop: '1rem' }}>
+                      Total Paid: £
+                      {record.payments.reduce(
+                        (accumulator, payment) => accumulator + payment.amount,
+                        0
+                      )}
+                    </Typography>
+                  </TableContainer>
+                );
+              }}
             />
           </Tab>
         )}
