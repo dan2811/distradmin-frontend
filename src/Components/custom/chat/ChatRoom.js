@@ -8,7 +8,6 @@ import { Button } from 'react-admin';
 import Participants from './Participants';
 
 const ChatRoom = ({ chatData, roomId }) => {
-  console.debug('CHATDATA: ', chatData);
   const [input, setInput] = useState('');
   const [showParticipantsModal, setShowParticipantsModal] = useState(false);
   const [messagesData, setMessagesData] = useState([]);
@@ -53,8 +52,6 @@ const ChatRoom = ({ chatData, roomId }) => {
   if (messages.data.length) {
     messageIds = messages.data.map((message) => message.id);
   }
-
-  console.log('MESSAGE IDS: ', messageIds);
 
   if (!chatData || chatData === null) {
     return null;

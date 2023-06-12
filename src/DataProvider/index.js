@@ -207,10 +207,6 @@ export const DataProvider = (
     console.log('DATAPROVIDER LOGS', { resource, type });
     switch (type) {
       case GET_ONE:
-        console.log(
-          'GET ONE response (flattened) ',
-          flattenNestedRelations(response.json)
-        );
         return {
           data: flattenNestedRelations(response.json),
         };
@@ -341,7 +337,6 @@ const flattenNestedRelations = (response) => {
     }
 
     if (key === 'data' && Array.isArray(response[key])) {
-      console.log('if statement A');
       //flattens the attribbutes to the same level as the ids.
       flattenedResponse.data = response.data.map((obj) => {
         return {
@@ -371,7 +366,6 @@ const flattenNestedRelations = (response) => {
         });
       });
     } else {
-      console.log('if statement B');
       flattenedResponse.data = {
         ...response.data.attributes,
         id: response.data.id,

@@ -12,7 +12,6 @@ const Chat = () => {
     setValue(newValue);
   };
   const record = useRecordContext();
-  console.log('RECORD:', record);
   let chatIds = record.chats;
 
   useEffect(() => {
