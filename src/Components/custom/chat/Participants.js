@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -12,13 +12,29 @@ import {
   InputLabel,
   FormControl,
 } from '@mui/material';
-import { Button } from 'react-admin';
+import { Button, useNotify } from 'react-admin';
+import { getFromBackend } from '../../../DataProvider/backendHelpers';
 
-const handleRemoveUser = () => {};
-const handleUserToAdd = () => {};
+const Participants = ({
+  users,
+  removeUser,
+  addUser,
+  chatId,
+  setUsersInChat,
+}) => {
+  const [userToAdd, setUserToAdd] = useState('');
+  const [allUsers, setAllUsers] = useState([]);
+  const notify = useNotify();
 
-const Participants = ({ users, chatId }) => {
-  const [userToAdd, setUserToAdd] = useState(null);
+  useEffect(() => {
+    const getUsers = async () => {
+      const users = await getFromBackend('users');
+      setAllUsers(users);
+      console.log('USERS: ', users);
+    };
+    getUsers();
+  }, []);
+
   return (
     <TableContainer component={Paper}>
       <Table aria-label='simple table'>
@@ -36,58 +52,70 @@ const Participants = ({ users, chatId }) => {
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell component='th' scope='row'>
-                {`${user.attributes.fName} ${user.attributes.lName}`}
+                {`${user.fName} ${user.lName}`}
               </TableCell>
-              <TableCell align='right'>{user.attributes.email}</TableCell>
+              <TableCell align='right'>{user.email}</TableCell>
               <TableCell align='right'>
                 <Button
                   label='remove'
                   alignIcon='left'
                   variant='contained'
                   color='error'
-                  // onClick={() => setShowParticipantsModal(true)}
+                  onClick={() => {
+                    removeUser(user.id, chatId, notify, setUsersInChat);
+                  }}
                 />
               </TableCell>
             </TableRow>
           ))}
-          <TableRow
-            key='add user row'
-            sx={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              display: 'flex',
-            }}
-          >
-            <FormControl sx={{ m: 1, minWidth: 200 }}>
-              <InputLabel id='user-label'>User</InputLabel>
-              <Select
-                sx={{ minWidth: '100px' }}
-                labelId='user-label'
-                value={userToAdd}
-                onChange={handleUserToAdd}
-              >
-                <MenuItem value={10}>User 1</MenuItem>
-              </Select>
-            </FormControl>
-            <Button
-              label='Add'
-              alignIcon='left'
-              variant='contained'
-              color='secondary'
-              sx={{ padding: '10px', margin: '10px' }}
-              // onClick={() => setShowParticipantsModal(true)}
-            />
-          </TableRow>
         </TableBody>
       </Table>
-      <Button
-        label='Save'
-        alignIcon='left'
-        variant='contained'
-        color='secondary'
-        sx={{ padding: '10px', margin: '10px' }}
-        // onClick={() => setShowParticipantsModal(true)}
-      />
+      <div>
+        <FormControl
+          sx={{
+            m: 1,
+            minWidth: 0,
+            flexDirection: 'row',
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <InputLabel id='user-label'>User</InputLabel>
+          <Select
+            sx={{ minWidth: '300px' }}
+            labelId='user-label'
+            value={userToAdd}
+            onChange={(e) => setUserToAdd(e.target.value)}
+          >
+            {allUsers
+              .sort((a, b) => {
+                if (a.fName < b.fName) {
+                  return -1;
+                }
+                if (a.fName > b.fName) {
+                  return 1;
+                }
+                return 0;
+              })
+              .filter((user) => !users.map((u) => u.id).includes(user.id))
+              .map((user) => (
+                <MenuItem value={user.id} key={user.id}>
+                  {`${user.fName} ${user.lName} - ${user.email}`}
+                </MenuItem>
+              ))}
+          </Select>
+          <Button
+            label='Add'
+            alignIcon='left'
+            variant='contained'
+            color='secondary'
+            sx={{ padding: '10px', margin: '10px' }}
+            onClick={() => {
+              addUser(userToAdd, chatId, notify, setUsersInChat);
+            }}
+          />
+        </FormControl>
+      </div>
     </TableContainer>
   );
 };

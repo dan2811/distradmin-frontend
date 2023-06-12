@@ -6,11 +6,20 @@ import { getFromBackend } from '../../../DataProvider/backendHelpers';
 import { SocketContext } from '../../..';
 import { Button } from 'react-admin';
 import Participants from './Participants';
+import { addUser, removeUser } from './ChatRoomHelpers';
 
 const ChatRoom = ({ chatData, roomId }) => {
   const [input, setInput] = useState('');
   const [showParticipantsModal, setShowParticipantsModal] = useState(false);
   const [messagesData, setMessagesData] = useState([]);
+  const [usersInChat, setUsersInChat] = useState(
+    chatData.users_permissions_users.data.map((u) => ({
+      ...u.attributes,
+      id: u.id,
+    }))
+  );
+  console.log('usersInChat:', usersInChat);
+
   const { id: currentUserId, email: currentUserEmail } = JSON.parse(
     localStorage.getItem('gUser')
   );
@@ -28,6 +37,7 @@ const ChatRoom = ({ chatData, roomId }) => {
   };
 
   useEffect(() => {
+    console.log('use effect called');
     if (chatData === undefined) {
       window.alert('Could not get chat data');
       return;
@@ -47,7 +57,7 @@ const ChatRoom = ({ chatData, roomId }) => {
         socket.off(`room-${roomId}`);
       };
     }
-  }, [chatData, socket]);
+  }, [chatData, socket, usersInChat]);
 
   if (messages.data.length) {
     messageIds = messages.data.map((message) => message.id);
@@ -79,8 +89,11 @@ const ChatRoom = ({ chatData, roomId }) => {
       >
         <DialogTitle>Particpants</DialogTitle>
         <Participants
-          users={chatData.users_permissions_users.data}
-          chatId={chatData.id}
+          users={usersInChat}
+          chatId={roomId}
+          addUser={addUser}
+          removeUser={removeUser}
+          setUsersInChat={setUsersInChat}
         />
       </Dialog>
       <MessageList messages={messagesData} />
@@ -106,15 +119,15 @@ const ChatRoom = ({ chatData, roomId }) => {
       <div>
         Your message will be sent to:
         <div style={{ color: 'blue' }}>
-          {chatData.users_permissions_users.data
+          {usersInChat
             .map((user) => {
               if (user.id !== currentUserId) {
-                if (user.attributes.fName === null) {
-                  return 'unknown user';
+                if (user.fName === null || user.lName === null) {
+                  return user.email || 'Unknown User';
                 }
-                return `${user.attributes.fName} ${user.attributes.lName
-                  .slice(0, 1)
-                  .toUpperCase()}`;
+                return `${user.fName} ${
+                  user.lName ? user.lName.slice(0, 1).toUpperCase() : ''
+                }`;
               }
               return 'You';
             })

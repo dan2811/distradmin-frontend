@@ -39,12 +39,12 @@ const Chat = () => {
     <Card style={{ width: '40%', marginLeft: '1em', padding: '1em' }}>
       <Tabs value={value} onChange={handleChange}>
         {chats.map((chat, idx) => (
-          <Tab label={chat.attributes.name} id={idx} />
+          <Tab label={chat.attributes.name} id={idx} key={chat.id} />
         ))}
       </Tabs>
 
       {chats.map((chat, idx) => (
-        <TabPanel value={value} index={idx}>
+        <TabPanel value={value} index={idx} key={chat.id}>
           <ChatRoom chatData={chat.attributes} roomId={chat.id} />
         </TabPanel>
       ))}
