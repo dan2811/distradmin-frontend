@@ -16,8 +16,6 @@ export const getFromBackend = async (
     });
   }
 
-  console.log('FILTER STRING: ', filterString);
-
   const paginationString = `&pagination[page]=${page}&pagination[pageSize]=${pageSize}`;
 
   const res = await fetch(
@@ -37,7 +35,22 @@ export const postBackend = (route, body) => {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${jwt}`,
+      type: 'Application/JSON',
     },
     body: JSON.stringify(body),
   });
+};
+
+export const putBackend = (route, body) => {
+  const jwt = localStorage.getItem('token');
+  console.log(JSON.stringify({ data: body }));
+  const res = fetch(`${process.env.REACT_APP_BACKEND_URL}/api${route}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+      'Content-Type': 'Application/JSON',
+    },
+    body: JSON.stringify({ data: body }),
+  });
+  return res;
 };

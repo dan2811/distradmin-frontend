@@ -13,8 +13,6 @@ import {
   useRefresh,
   DeleteButton,
   usePermissions,
-  useRedirect,
-  useRecordContext,
   Link,
 } from 'react-admin';
 import {
@@ -50,7 +48,11 @@ import AddPaymentButton from './EventFinanceTab/AddPaymentButton.js';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { postBackend } from '../../DataProvider/backendHelpers.js';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  getFromBackend,
+  putBackend,
+} from '../../DataProvider/backendHelpers.js';
 
 // const FilteredSetsList = () => {
 //   const record = useRecordContext();
@@ -90,25 +92,39 @@ export const EventShow = () => {
   const refresh = useRefresh();
   const [isClicked, setIsClicked] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const [paymentDate, setPaymentDate] = React.useState('');
+  const [paymentDate, setPaymentDate] = React.useState(new Date());
   const [paymentAmount, setPaymentAmount] = React.useState(0);
   const [paymentAmountInputError, setPaymentAmountInputError] =
     React.useState(false);
   const { isLoading, permissions } = usePermissions();
-  const redirect = useRedirect();
-  const record = useRecordContext();
 
-  const handleAddNewPayment = async () => {
+  const handleAddNewPayment = async (record) => {
     setLoading(true);
+    let eventRes;
     try {
-      // const result = await putBackend('/events/paypal-webhook', {
-      //   amount: paymentAmount,
-      //   date: paymentDate,
-      // });
+      eventRes = await getFromBackend('events', [record.id]);
+      console.log('GOT EVENT: ', eventRes);
+      const previousPayments = eventRes.data[0].attributes.payments || [];
+      const res = await putBackend(`/events/${record.id}`, {
+        payments: [
+          ...previousPayments,
+          {
+            id: `MANUAL-${uuidv4()}`,
+            amount: parseInt(paymentAmount),
+            date: paymentDate,
+          },
+        ],
+      });
+      if (!res.ok) {
+        throw new Error(res);
+      }
       refresh();
       notify('Payment created successfully', { type: 'success' });
     } catch (e) {
-      notify('Could not create payment', { type: 'error' });
+      console.error(e);
+      notify(`Could not create payment ${JSON.stringify(e)}`, {
+        type: 'error',
+      });
     }
     setLoading(false);
   };
@@ -154,8 +170,7 @@ export const EventShow = () => {
     setLoading(false);
   };
 
-  console.log('PAY DATE: ', paymentDate);
-
+  console.log('PAYMENT DATE: ', paymentDate);
   return isLoading ? (
     <div>Checking permissions...</div>
   ) : (
@@ -229,7 +244,6 @@ export const EventShow = () => {
 
             <FunctionField
               render={(record) => {
-                if (!record.payments) return <></>;
                 return (
                   <TableContainer
                     component={Paper}
@@ -248,26 +262,28 @@ export const EventShow = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {record.payments.map((payment) => (
-                          <TableRow key={payment.id}>
-                            <TableCell component='th' scope='row'>
-                              {new Date(payment.date).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell>£{payment.amount}</TableCell>
-                            <TableCell>{payment.id}</TableCell>
+                        {record.payments ? (
+                          record.payments.map((payment) => (
+                            <TableRow key={payment.id}>
+                              <TableCell component='th' scope='row'>
+                                {new Date(payment.date).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell>£{payment.amount}</TableCell>
+                              <TableCell>{payment.id}</TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell>No Payments</TableCell>
                           </TableRow>
-                        ))}
-                        <TableRow>
+                        )}
+                        <TableRow sx={{ backgroundColor: '#f8f8f8' }}>
                           <TableCell component='th' scope='row'>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                               <DatePicker
                                 views={['day', 'month', 'year']}
                                 label='Date'
-                                onChange={(val) =>
-                                  setPaymentDate(
-                                    new Date(val).toLocaleDateString()
-                                  )
-                                }
+                                onChange={(val) => setPaymentDate(val)}
                                 defaultValue={dayjs()}
                                 format='DD/MM/YYYY'
                               />
@@ -301,7 +317,9 @@ export const EventShow = () => {
                           </TableCell>
                           <TableCell>
                             <AddPaymentButton
+                              loading={loading}
                               handleAddNewPayment={handleAddNewPayment}
+                              record={record}
                             />
                           </TableCell>
                         </TableRow>
@@ -309,10 +327,13 @@ export const EventShow = () => {
                     </Table>
                     <Typography variant='subtitle2' sx={{ marginTop: '1rem' }}>
                       Total Paid: £
-                      {record.payments.reduce(
-                        (accumulator, payment) => accumulator + payment.amount,
-                        0
-                      )}
+                      {record.payments
+                        ? record.payments.reduce(
+                            (accumulator, payment) =>
+                              parseInt(accumulator) + parseInt(payment.amount),
+                            0
+                          )
+                        : 0}
                     </Typography>
                   </TableContainer>
                 );
