@@ -6,7 +6,6 @@ export const MessageList = ({ messages }) => {
   const lastMessageRef = useRef(null);
 
   useEffect(() => {
-    console.log('USE EFFECT');
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
     }
@@ -19,8 +18,7 @@ export const MessageList = ({ messages }) => {
   return (
     <Stack
       sx={{
-        maxHeight: '300px',
-        minHeight: '200px',
+        maxHeight: '500px',
         overflowY: 'auto',
         overflowX: 'none',
       }}
